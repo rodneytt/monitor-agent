@@ -1,7 +1,8 @@
 package com.osight.monitor.control;
 
+import java.util.Random;
 import java.util.Stack;
-import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author chenw <a href="mailto:chenw@chsi.com.cn">chen wei</a>
@@ -12,12 +13,13 @@ public class RpcInfo {
     private Stack<String> stack;
     private boolean started;
     private String current;
+    private String ip;
+    private AtomicInteger order = new AtomicInteger(0);
 
     public RpcInfo() {
         stack = new Stack<>();
-        stack.push("0");
         started = true;
-        traceId = UUID.randomUUID().toString();
+        traceId = getRandomString(16);
     }
 
     public Stack<String> getStack() {
@@ -46,5 +48,30 @@ public class RpcInfo {
 
     public String getTraceId() {
         return traceId;
+    }
+
+    public String getIp() {
+        return ip;
+    }
+
+    public void setIp(String ip) {
+        this.ip = ip;
+    }
+
+    private static Random random = new Random();
+
+    public static String getRandomString(int length) {
+        String base = "0123456789abcdefghijklmnopqrstuvwxyz";
+        int baseLength = base.length();
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < length; i++) {
+            int index = random.nextInt(baseLength);
+            sb.append(base.charAt(index));
+        }
+        return sb.toString();
+    }
+
+    public AtomicInteger getOrder() {
+        return order;
     }
 }

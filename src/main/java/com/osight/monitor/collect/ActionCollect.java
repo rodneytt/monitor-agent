@@ -1,9 +1,10 @@
 package com.osight.monitor.collect;
 
-import org.apache.commons.lang.StringUtils;
 
 import com.osight.monitor.loader.AgentLoader;
 import com.osight.monitor.loader.SnippetCode;
+import com.osight.monitor.util.StringUtils;
+
 import javassist.CtClass;
 import javassist.CtMethod;
 import javassist.Modifier;
@@ -25,7 +26,6 @@ public class ActionCollect extends AbstractCollect implements ApmCollect {
         sb.append(ActionCollect.class.getName()).append(" instance= ");
         sb.append(ActionCollect.class.getName()).append(".INSTANCE;\r\n");
         sb.append(ActionCollect.class.getName()).append(".WebStatistics statistic =(").append(ActionCollect.class.getName()).append(".WebStatistics").append(")instance.begin(\"%s\",\"%s\");");
-        sb.append("statistic.url=\"%s\";");
         beginSrc = sb.toString();
         endSrc = "instance.end(statistic);";
         errorSrc = "instance.error(statistic,e);";
@@ -33,12 +33,12 @@ public class ActionCollect extends AbstractCollect implements ApmCollect {
 
     @Override
     public boolean isTarget(String className, ClassLoader classLoader, CtClass ctClass) {
-        return StringUtils.startsWith(className, "com.osight") && StringUtils.endsWithIgnoreCase(className, "Action");
+        return StringUtils.startsWith(className, "com.chsi") && StringUtils.endsWithIgnoreCase(className, "Action");
     }
 
     @Override
-    public byte[] transform(ClassLoader classLoader, String className, byte[] arrayOfByte, CtClass ctClass) {
-        AgentLoader loader = new AgentLoader(className, classLoader, ctClass);
+    public byte[] transform(String className, byte[] arrayOfByte, CtClass ctClass) {
+        AgentLoader loader = new AgentLoader(className, ctClass);
         CtMethod[] methods = ctClass.getDeclaredMethods();
         for (CtMethod method : methods) {
             try {
@@ -58,7 +58,7 @@ public class ActionCollect extends AbstractCollect implements ApmCollect {
 
     @Override
     public void sendStatistics(Statistics stat) {
-        sendStatisticsByHttp(stat, "web");
+        sendStatisticsByHttp(stat, "monitor");
     }
 
     @Override
@@ -71,7 +71,6 @@ public class ActionCollect extends AbstractCollect implements ApmCollect {
     }
 
     public class WebStatistics extends Statistics {
-        public String url;
         public String serviceName;
         public String methodName;
 
@@ -79,5 +78,4 @@ public class ActionCollect extends AbstractCollect implements ApmCollect {
             super(stat);
         }
     }
-
 }

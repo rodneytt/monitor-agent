@@ -1,7 +1,8 @@
 package com.osight.monitor.collect;
 
-import com.osight.monitor.loader.SnippetCode;
 import com.osight.monitor.loader.AgentLoader;
+import com.osight.monitor.loader.SnippetCode;
+
 import javassist.CtClass;
 import javassist.CtMethod;
 import javassist.Modifier;
@@ -14,7 +15,7 @@ public class SpringServiceCollect extends AbstractCollect implements ApmCollect 
     private static final String beginSrc;
     private static final String errorSrc;
     private static final String endSrc;
-    public static SpringServiceCollect INSTANCE = new SpringServiceCollect();
+    public static final SpringServiceCollect INSTANCE = new SpringServiceCollect();
 
     static {
         StringBuilder localStringBuilder = new StringBuilder();
@@ -31,11 +32,11 @@ public class SpringServiceCollect extends AbstractCollect implements ApmCollect 
     }
 
     public boolean isTarget(String paramString, ClassLoader paramClassLoader, CtClass paramCtClass) {
-        return paramString.startsWith("com.osight") && paramString.endsWith("Impl");
+        return (paramString.startsWith("com.chsi") || paramString.startsWith("com.osight")) && paramString.endsWith("Impl");
     }
 
-    public byte[] transform(ClassLoader classLoader, String serviceName, byte[] arrayOfByte, CtClass ctClass) {
-        AgentLoader loader = new AgentLoader(serviceName, classLoader, ctClass);
+    public byte[] transform(String serviceName, byte[] arrayOfByte, CtClass ctClass) {
+        AgentLoader loader = new AgentLoader(serviceName, ctClass);
         CtMethod[] methods = ctClass.getDeclaredMethods();
         for (CtMethod method : methods) {
             if (Modifier.isPublic(method.getModifiers()) && !Modifier.isStatic(method.getModifiers()) && !Modifier.isNative(method.getModifiers())) {
@@ -60,7 +61,7 @@ public class SpringServiceCollect extends AbstractCollect implements ApmCollect 
 
 
     public void sendStatistics(Statistics stat) {
-        sendStatisticsByHttp(stat, "serviceLog");
+        sendStatisticsByHttp(stat, "monitor");
     }
 
     private static class ServiceStatistics extends Statistics {

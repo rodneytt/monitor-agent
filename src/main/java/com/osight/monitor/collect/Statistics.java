@@ -1,6 +1,9 @@
 package com.osight.monitor.collect;
 
-import java.util.Date;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author chenw <a href="mailto:chenw@chsi.com.cn">chen wei</a>
@@ -14,9 +17,9 @@ public class Statistics {
     public Long useTime;
     public String errorMsg;
     public String errorType;
-    public Date createTime;
     public String ip;
     public String logType;
+    public Integer order;
 
     public Statistics() {
 
@@ -28,10 +31,45 @@ public class Statistics {
         this.useTime = stat.useTime;
         this.errorMsg = stat.errorMsg;
         this.errorType = stat.errorType;
-        this.createTime = stat.createTime;
         this.traceId = stat.traceId;
         this.ip = stat.ip;
         this.logType = stat.logType;
         this.rpcId = stat.rpcId;
+        this.order = stat.order;
     }
+
+    public String toJson() {
+        List<Field> fields = getFields(this.getClass());
+        StringBuffer sb = new StringBuffer();
+        sb.append("{");
+        for (Field f : fields) {
+            Object v = null;
+            try {
+                v = f.get(this);
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+            sb.append("\"").append(f.getName()).append("\":");
+            if (v != null) {
+                if (v instanceof Number) {
+                    sb.append(v).append(",");
+                } else {
+                    sb.append("\"").append(v.toString()).append("\",");
+                }
+            } else {
+                sb.append("\"\",");
+            }
+        }
+        return sb.substring(0, sb.length() - 1) + "}";
+    }
+
+    private List<Field> getFields(Class clz) {
+        List<Field> list = new ArrayList<>();
+        while (clz.getSuperclass() != null) {
+            list.addAll(Arrays.asList(clz.getDeclaredFields()));
+            clz = clz.getSuperclass();
+        }
+        return list;
+    }
+
 }

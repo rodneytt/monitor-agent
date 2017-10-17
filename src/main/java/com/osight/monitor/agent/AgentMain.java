@@ -9,8 +9,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import com.osight.monitor.collect.ActionCollect;
 import com.osight.monitor.collect.ApmCollect;
+import com.osight.monitor.collect.FilterCollect;
 import com.osight.monitor.collect.JdbcCommonCollect;
 import com.osight.monitor.collect.SpringServiceCollect;
+
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.LoaderClassPath;
@@ -24,7 +26,7 @@ public class AgentMain implements ClassFileTransformer {
     private Map<ClassLoader, ClassPool> classPoolMap = new ConcurrentHashMap<>();
 
     public static void premain(String args, Instrumentation inst) {
-        collects = new ApmCollect[] {SpringServiceCollect.INSTANCE, JdbcCommonCollect.INSTANCE, ActionCollect.INSTANCE};
+        collects = new ApmCollect[]{SpringServiceCollect.INSTANCE, JdbcCommonCollect.INSTANCE, ActionCollect.INSTANCE, FilterCollect.INSTANCE};
         AgentMain agentMain = new AgentMain();
         inst.addTransformer(agentMain);
     }
@@ -44,15 +46,17 @@ public class AgentMain implements ClassFileTransformer {
             CtClass localCtClass = localClassPool.get(className);
             for (ApmCollect collect : collects) {
                 if (collect.isTarget(className, loader, localCtClass)) {
-                    byte[] arrayOfByte = collect.transform(loader, className, classfileBuffer, localCtClass);
-                    System.out.println(String.format("%s bit APM agent insert success", new Object[] {className}));
+                    byte[] arrayOfByte = collect.transform(className, classfileBuffer, localCtClass);
+                    System.out.println(String.format("%s APM agent insert success", className));
                     return arrayOfByte;
                 }
             }
         } catch (Throwable localThrowable) {
-            new Exception(String.format("%s bit APM agent insert fail", className), localThrowable).printStackTrace();
+            System.out.println(String.format("%s APM agent insert fail", className));
+            return null;
+
         }
 
-        return new byte[0];
+        return null;
     }
 }

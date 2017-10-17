@@ -18,4 +18,10 @@ public interface IUserService {
     void showUser(String name);
 
     String getPassword(String name);
+
+    String getUserByOracle();
+
+    void inner();
+
+    void printThreadLocal();
 }

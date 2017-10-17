@@ -14,10 +14,12 @@ import com.osight.monitor.collect.JdbcCommonCollect.JdbcStatistics;
 public class ConnectionHandler implements InvocationHandler {
     private final JdbcCommonCollect collect;
     private final Connection sqlConnection;
+    private final ClassLoader classLoader;
 
-    public ConnectionHandler(JdbcCommonCollect collect, Connection conn) {
+    public ConnectionHandler(JdbcCommonCollect collect, Connection conn, ClassLoader classLoader) {
         this.collect = collect;
         this.sqlConnection = conn;
+        this.classLoader = classLoader;
     }
 
     @Override
@@ -40,7 +42,7 @@ public class ConnectionHandler implements InvocationHandler {
             result = method.invoke(this.sqlConnection, args);
             if ((i != 0) && ((result instanceof PreparedStatement))) {
                 PreparedStatement localPreparedStatement = (PreparedStatement) result;
-                result = this.collect.proxyPreparedStatement(localPreparedStatement, localJdbcStatistics);
+                result = this.collect.proxyPreparedStatement(localPreparedStatement, localJdbcStatistics, classLoader);
             }
         } catch (Throwable t) {
             this.collect.error(localJdbcStatistics, t);

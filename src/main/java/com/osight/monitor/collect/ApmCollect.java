@@ -7,7 +7,7 @@ import javassist.CtClass;
  * @version $Id$
  */
 public interface ApmCollect {
-    public abstract boolean isTarget(String className, ClassLoader classLoader, CtClass ctClass);
+    boolean isTarget(String className, ClassLoader classLoader, CtClass ctClass);
 
-    public abstract byte[] transform(ClassLoader classLoader, String className, byte[] arrayOfByte, CtClass ctClass);
+    byte[] transform(String className, byte[] arrayOfByte, CtClass ctClass);
 }

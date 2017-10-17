@@ -8,15 +8,15 @@ public class RpcThreadLocalManager {
     private static final String RPC_INFO = "rpcINFO_343$%_@og";
 
     public static RpcInfo get() {
-        return (RpcInfo) ThreadLocalManager.getResource(RPC_INFO);
+        return (RpcInfo) ThreadLocalUtil.getResource(RPC_INFO);
     }
 
     public static void bind(RpcInfo info) {
-        ThreadLocalManager.bindResource(RPC_INFO, info);
+        ThreadLocalUtil.bindResource(RPC_INFO, info);
     }
 
     public static void unbind() {
-        ThreadLocalManager.unbindResource(RPC_INFO);
+        ThreadLocalUtil.unbindResource(RPC_INFO);
     }
 
 }
