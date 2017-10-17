@@ -49,7 +49,6 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     public void enableUser() {
-        getUserByOracle();
     }
 
     @Override

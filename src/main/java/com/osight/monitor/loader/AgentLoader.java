@@ -3,7 +3,6 @@ package com.osight.monitor.loader;
 import java.io.IOException;
 
 import com.osight.monitor.util.StringUtils;
-
 import javassist.CannotCompileException;
 import javassist.CtClass;
 import javassist.CtMethod;
@@ -22,7 +21,21 @@ public class AgentLoader {
         this.ctClass = clz;
     }
 
+
     public void buildMethod(CtMethod method, SnippetCode sc) {
+        String methodName = method.getName();
+        try {
+            String agentName = "$" + StringUtils.substringAfterLast(serviceName, ".") + "Agent";
+            CtMethod agentMethod = CtNewMethod.copy(method, methodName, ctClass, null);
+            agentMethod.setName(methodName + agentName);
+            ctClass.addMethod(agentMethod);
+            method.setBody(sc.insert(method, agentName));
+        } catch (CannotCompileException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void buildMethod1(CtMethod method, SnippetCode sc) {
 
         CtMethod ctMethod = method;
         String methodName = method.getName();
@@ -31,11 +44,12 @@ public class AgentLoader {
             ctMethod.setName(methodName + agentName);
             CtMethod agentMethod = CtNewMethod.copy(ctMethod, methodName, ctClass, null);
             ctClass.addMethod(agentMethod);
-            agentMethod.setBody(sc.insert(agentMethod, agentName));
+            agentMethod.setBody(sc.insert1(agentMethod, agentName));
         } catch (CannotCompileException e) {
             e.printStackTrace();
         }
     }
+
 
     public byte[] build() {
         try {

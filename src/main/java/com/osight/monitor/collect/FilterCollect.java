@@ -31,7 +31,7 @@ public class FilterCollect extends AbstractCollect implements ApmCollect {
                         FilterStatistics.class.getName() + " statistics = (" + FilterStatistics.class.getName() + ") instace.begin(\"%s\", \"%s\");\n" +
                         "javax.servlet.http.HttpServletRequest request = (javax.servlet.http.HttpServletRequest) $1;\n" +
                         "statistics.ip=request.getRemoteAddr();\n" +
-                        "String url = com.chsi.framework.util.URLUtil.getURL(request, null);\n" +
+                        "String url = request.getRequestURI();\n" +
                         "statistics.url = url;\n";
         endSrc = "instace.end(statistics);";
         errorSrc = "instace.error(statistics, e);";
@@ -45,7 +45,7 @@ public class FilterCollect extends AbstractCollect implements ApmCollect {
 
     @Override
     public boolean isTarget(String className, ClassLoader classLoader, CtClass ctClass) {
-        return className.equals("com.chsi.framework.web.filter.BindCallInfoFilter");
+        return false;
     }
 
     @Override

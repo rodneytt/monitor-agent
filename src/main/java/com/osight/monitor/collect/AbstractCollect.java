@@ -33,6 +33,7 @@ public abstract class AbstractCollect {
     }
 
     public Statistics begin(String name, String method) {
+        Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
         Statistics stat = new Statistics();
         stat.begin = System.currentTimeMillis();
         RpcInfo info = RpcThreadLocalManager.get();

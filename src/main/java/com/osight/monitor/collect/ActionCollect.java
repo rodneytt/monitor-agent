@@ -33,7 +33,7 @@ public class ActionCollect extends AbstractCollect implements ApmCollect {
 
     @Override
     public boolean isTarget(String className, ClassLoader classLoader, CtClass ctClass) {
-        return StringUtils.startsWith(className, "com.chsi") && StringUtils.endsWithIgnoreCase(className, "Action");
+        return (StringUtils.startsWith(className, "com.chsi") || StringUtils.startsWith(className, "com.osight")) && StringUtils.endsWithIgnoreCase(className, "Controller");
     }
 
     @Override
@@ -42,7 +42,7 @@ public class ActionCollect extends AbstractCollect implements ApmCollect {
         CtMethod[] methods = ctClass.getDeclaredMethods();
         for (CtMethod method : methods) {
             try {
-                if (Modifier.isPublic(method.getModifiers()) && !Modifier.isStatic(method.getModifiers()) && !Modifier.isNative(method.getModifiers()) && method.getParameterTypes().length == 0 && method.getReturnType().getName().equals("java.lang.String")) {
+                if (Modifier.isPublic(method.getModifiers()) && !Modifier.isStatic(method.getModifiers()) && !Modifier.isNative(method.getModifiers()) && method.getParameterTypes().length <= 1 && method.getReturnType().getName().equals("java.lang.String")) {
                     SnippetCode sc = new SnippetCode();
                     sc.setBegin(String.format(beginSrc, className, method.getName(), requestUrl));
                     sc.setError(errorSrc);

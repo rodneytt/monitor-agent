@@ -144,16 +144,11 @@ public class UserServiceTest {
     public void test() {
         IUserService userService = new UserServiceImpl();
         userService.newUser("zhangsan", "123456");
-        //userService.showUser("zhangsan");
-        userService.getUserByOracle();
+        userService.showUser("zhangsan");
+        //userService.getUserByOracle();
         userService.enableUser();
         userService.updateUser("user", "aaa");
         //userService.printUser("aaa");
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
     }
 
     @Test
