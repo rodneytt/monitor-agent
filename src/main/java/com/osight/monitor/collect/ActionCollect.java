@@ -3,7 +3,6 @@ package com.osight.monitor.collect;
 
 import com.osight.monitor.loader.AgentLoader;
 import com.osight.monitor.loader.SnippetCode;
-import com.osight.monitor.util.StringUtils;
 
 import javassist.CtClass;
 import javassist.CtMethod;
@@ -33,7 +32,7 @@ public class ActionCollect extends AbstractCollect implements ApmCollect {
 
     @Override
     public boolean isTarget(String className, ClassLoader classLoader, CtClass ctClass) {
-        return (StringUtils.startsWith(className, "com.chsi") || StringUtils.startsWith(className, "com.osight")) && StringUtils.endsWithIgnoreCase(className, "Controller");
+        return (className.startsWith("com.chsi") && className.endsWith("Action")) || (className.startsWith("com.osight") && className.endsWith("Controller"));
     }
 
     @Override

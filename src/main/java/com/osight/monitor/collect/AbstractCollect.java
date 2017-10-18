@@ -97,10 +97,6 @@ public abstract class AbstractCollect {
     }
 
     protected void execHttp(final Statistics stat, final String index) {
-        System.out.println(stat.toJson());
-        if (stat.traceId == null) {
-            return;
-        }
         Runnable run = new Runnable() {
             @Override
             public void run() {
@@ -112,9 +108,8 @@ public abstract class AbstractCollect {
                     restClient = RestClient.builder(new HttpHost("172.16.11.196", 9200)).build();
                     RestHighLevelClient highLevelClient = new RestHighLevelClient(restClient);
                     IndexResponse response = highLevelClient.index(indexRequest);
-                    System.out.println(response.toString());
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    System.out.println(String.format("写入elasticssearch异常，msg:%s", e.getMessage()));
                 } finally {
                     try {
                         if (restClient != null)
@@ -125,7 +120,7 @@ public abstract class AbstractCollect {
                 }
             }
         };
-        //threadService.execute(run);
+        threadService.execute(run);
     }
 
     private static class RejectedHandler implements RejectedExecutionHandler {

@@ -45,7 +45,7 @@ public class FilterCollect extends AbstractCollect implements ApmCollect {
 
     @Override
     public boolean isTarget(String className, ClassLoader classLoader, CtClass ctClass) {
-        return false;
+        return className.equals("com.chsi.framework.web.filter.BindCallInfoFilter");
     }
 
     @Override
