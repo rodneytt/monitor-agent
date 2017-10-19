@@ -35,28 +35,26 @@ public class AgentMain implements ClassFileTransformer {
         if ((className == null) || (loader == null) || (loader.getClass().getName().equals("sun.reflect.DelegatingClassLoader")) || (loader.getClass().getName().equals("org.apache.catalina.loader.StandardClassLoader")) || (loader.getClass().getName().equals("javax.management.remote.rmi.NoCallStackClassLoader")) || (loader.getClass().getName().equals("com.alibaba.fastjson.util.ASMClassLoader")) || (className.contains("$Proxy")) || (className.startsWith("java"))) {
             return null;
         }
-        if (!this.classPoolMap.containsKey(loader)) {
+        if (!classPoolMap.containsKey(loader)) {
             ClassPool localClassPool = new ClassPool();
             localClassPool.insertClassPath(new LoaderClassPath(loader));
-            this.classPoolMap.put(loader, localClassPool);
+            classPoolMap.put(loader, localClassPool);
         }
-        ClassPool localClassPool = this.classPoolMap.get(loader);
+        ClassPool localClassPool = classPoolMap.get(loader);
         try {
             className = className.replaceAll("/", ".");
             CtClass localCtClass = localClassPool.get(className);
             for (ApmCollect collect : collects) {
-                if (collect.isTarget(className, loader, localCtClass)) {
+                if (collect.isTarget(className, localCtClass)) {
                     byte[] arrayOfByte = collect.transform(className, classfileBuffer, localCtClass);
-                    System.out.println(String.format("%s APM agent insert success", className));
+                    System.out.println(String.format("%s APM agent insert success,loader:%s", className, loader));
                     return arrayOfByte;
                 }
             }
         } catch (Throwable localThrowable) {
             System.out.println(String.format("%s APM agent insert fail", className));
             return null;
-
         }
-
         return null;
     }
 }

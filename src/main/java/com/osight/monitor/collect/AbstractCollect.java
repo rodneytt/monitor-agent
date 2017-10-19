@@ -1,6 +1,5 @@
 package com.osight.monitor.collect;
 
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -8,15 +7,9 @@ import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.http.HttpHost;
-import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.action.index.IndexResponse;
-import org.elasticsearch.client.RestClient;
-import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.common.xcontent.XContentType;
-
 import com.osight.monitor.control.RpcInfo;
 import com.osight.monitor.control.RpcThreadLocalManager;
+import com.osight.monitor.netty.MonitorClient;
 import com.osight.monitor.util.StringUtils;
 
 /**
@@ -25,15 +18,18 @@ import com.osight.monitor.util.StringUtils;
  */
 public abstract class AbstractCollect {
     private static final ExecutorService threadService;
+    private static MonitorClient monitorClient;
     private static final String localIp;
+    private static String host = "localhost";
+    private static int port = 8709;
 
     static {
         threadService = new ThreadPoolExecutor(20, 100, 20000L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue(1000), new RejectedHandler());
+        monitorClient = new MonitorClient(host, port);
         localIp = null;
     }
 
     public Statistics begin(String name, String method) {
-        Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
         Statistics stat = new Statistics();
         stat.begin = System.currentTimeMillis();
         RpcInfo info = RpcThreadLocalManager.get();
@@ -100,23 +96,10 @@ public abstract class AbstractCollect {
         Runnable run = new Runnable() {
             @Override
             public void run() {
-                IndexRequest indexRequest = new IndexRequest(index, stat.logType);
-                indexRequest.source(stat.toJson(), XContentType.JSON);
-
-                RestClient restClient = null;
                 try {
-                    restClient = RestClient.builder(new HttpHost("172.16.11.196", 9200)).build();
-                    RestHighLevelClient highLevelClient = new RestHighLevelClient(restClient);
-                    IndexResponse response = highLevelClient.index(indexRequest);
+                    monitorClient.send(stat.toJson());
                 } catch (Exception e) {
-                    System.out.println(String.format("写入elasticssearch异常，msg:%s", e.getMessage()));
-                } finally {
-                    try {
-                        if (restClient != null)
-                            restClient.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                    monitorClient = new MonitorClient(host, port);
                 }
             }
         };

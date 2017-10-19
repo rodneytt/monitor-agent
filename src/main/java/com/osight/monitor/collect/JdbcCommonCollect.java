@@ -31,7 +31,7 @@ public class JdbcCommonCollect extends AbstractCollect implements ApmCollect {
     }
 
     @Override
-    public boolean isTarget(String className, ClassLoader classLoader, CtClass ctClass) {
+    public boolean isTarget(String className, CtClass ctClass) {
         return className.equals("org.h2.Driver") || className.equals("oracle.jdbc.driver.OracleDriver") || className.equals("com.mysql.jdbc.NonRegisteringDriver");
     }
 
@@ -54,11 +54,11 @@ public class JdbcCommonCollect extends AbstractCollect implements ApmCollect {
     }
 
     public Connection proxyConnection(Connection paramConnection, ClassLoader classLoader) {
-        return (Connection) Proxy.newProxyInstance(classLoader, new Class[] {Connection.class}, new ConnectionHandler(this, paramConnection, classLoader));
+        return (Connection) Proxy.newProxyInstance(classLoader, new Class[]{Connection.class}, new ConnectionHandler(this, paramConnection, classLoader));
     }
 
     PreparedStatement proxyPreparedStatement(PreparedStatement paramPreparedStatement, JdbcCommonCollect.JdbcStatistics paramJdbcStatistics, ClassLoader classLoader) {
-        return (PreparedStatement) Proxy.newProxyInstance(classLoader, new Class[] {PreparedStatement.class}, new PreparedStatementHandler(this, paramPreparedStatement, paramJdbcStatistics));
+        return (PreparedStatement) Proxy.newProxyInstance(classLoader, new Class[]{PreparedStatement.class}, new PreparedStatementHandler(this, paramPreparedStatement, paramJdbcStatistics));
     }
 
     @Override

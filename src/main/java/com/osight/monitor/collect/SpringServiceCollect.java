@@ -31,7 +31,7 @@ public class SpringServiceCollect extends AbstractCollect implements ApmCollect 
         errorSrc = localStringBuilder.toString();
     }
 
-    public boolean isTarget(String paramString, ClassLoader paramClassLoader, CtClass paramCtClass) {
+    public boolean isTarget(String paramString, CtClass paramCtClass) {
         return (paramString.startsWith("com.chsi") || paramString.startsWith("com.osight")) && paramString.endsWith("Impl");
     }
 

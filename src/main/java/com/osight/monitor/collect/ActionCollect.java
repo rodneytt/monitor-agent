@@ -31,7 +31,7 @@ public class ActionCollect extends AbstractCollect implements ApmCollect {
     }
 
     @Override
-    public boolean isTarget(String className, ClassLoader classLoader, CtClass ctClass) {
+    public boolean isTarget(String className, CtClass ctClass) {
         return (className.startsWith("com.chsi") && className.endsWith("Action")) || (className.startsWith("com.osight") && className.endsWith("Controller"));
     }
 
