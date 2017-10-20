@@ -99,7 +99,7 @@ public abstract class AbstractCollect {
                 try {
                     monitorClient.send(stat.toJson());
                 } catch (Exception e) {
-                    monitorClient = new MonitorClient(host, port);
+                    e.printStackTrace();
                 }
             }
         };

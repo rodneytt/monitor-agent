@@ -1,5 +1,8 @@
 package com.osight.monitor.netty;
 
+import java.util.Date;
+
+import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.timeout.IdleStateEvent;
@@ -8,12 +11,26 @@ import io.netty.handler.timeout.IdleStateEvent;
  * @author chenw <a href="mailto:chenw@chsi.com.cn">chen wei</a>
  * @version $Id$
  */
+@Sharable
 public class MonitorClientHandler extends SimpleChannelInboundHandler<String> {
-    private String clientId;
+    private MonitorClient client;
 
-    MonitorClientHandler(String clientId) {
+    MonitorClientHandler(MonitorClient client) {
         super(true);
-        this.clientId = clientId;
+        this.client = client;
+    }
+
+    @Override
+    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        System.out.println("上线时间：" + new Date());
+        super.channelActive(ctx);
+    }
+
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        System.out.println("下线时间：" + new Date());
+        super.channelInactive(ctx);
+        client.doConnect();
     }
 
     @Override
@@ -21,7 +38,7 @@ public class MonitorClientHandler extends SimpleChannelInboundHandler<String> {
         String[] array = msg.split("@");
         String type = array[0];
         if ("0".equals(type)) {
-            ctx.channel().writeAndFlush("2@" + clientId + "@i am ok");
+            ctx.writeAndFlush("2@" + client.getClientId() + "@i am ok");
         }
     }
 
@@ -31,13 +48,13 @@ public class MonitorClientHandler extends SimpleChannelInboundHandler<String> {
             IdleStateEvent e = (IdleStateEvent) evt;
             switch (e.state()) {
                 case WRITER_IDLE:
-                    ctx.channel().writeAndFlush("0@" + clientId);
+                    ctx.writeAndFlush("0@" + client.getClientId());
                     break;
                 default:
                     break;
             }
+        } else {
+            super.userEventTriggered(ctx, evt);
         }
-
-
     }
 }
